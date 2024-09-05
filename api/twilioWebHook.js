@@ -38,7 +38,7 @@ export default async function handler(req, res) {
             from: process.env.EMAIL_USER,  // Use the email set in environment variables
             to: 'hello@atpeacearts.com',
             subject: `New text from ${from}`,
-            text: `You have a new SMS from ${from}: \n\n ${body}`,
+            text: `You have a new SMS from <a href="tel:${from}">${from}</a>:\n\n${body}`,
         };
 
         try {
