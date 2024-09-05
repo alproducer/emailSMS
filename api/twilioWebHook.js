@@ -1,5 +1,5 @@
 import  nodemailer  from 'nodemailer';
-import { validateRequest } from 'twilio';
+import twilio from 'twilio';
 
 //Twilio Credentials
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
@@ -18,8 +18,7 @@ const transporter = nodemailer.createTransport({
 export default async function handler(req, res) {
     if (req.method === 'POST'){
         const twilioSignature = req.headers['x-twilio-signature'];
-        const url = 'https://emailsms-rjyfhzeve-al-watkins-projects.vercel.app/api/twilioWebHook
-';
+        const url = 'https://emailsms-rjyfhzeve-al-watkins-projects.vercel.app/api/twilioWebHook';
         const params = req.body;
     }
 
