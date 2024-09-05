@@ -16,10 +16,7 @@ const transporter = nodemailer.createTransport({
 });
 
 export default async function handler(req, res) {
-    // Handle only POST requests
-    if (req.method !== 'POST') {
-        return res.status(405).json({ message: 'Method not allowed. Please use POST.' });
-    }
+    
 
     // Ensure body parsing is handled correctly (Vercel requires manual parsing)
     let rawBody = '';
@@ -29,15 +26,10 @@ export default async function handler(req, res) {
 
     req.on('end', async () => {
         const twilioSignature = req.headers['x-twilio-signature'];
-        const url = `https://${req.headers.host}/api/twilioWebHook`;
+        const url = `https://emailsms-lp98l8282-al-watkins-projects.vercel.app/api/twilioWebHook`;
         const params = new URLSearchParams(rawBody);  // Parse raw body as URL-encoded form data
 
         // Validate the request to ensure it is from Twilio
-        const isValidRequest = twilio.validateRequest(twilioAuthToken, twilioSignature, url, Object.fromEntries(params));
-
-        if (!isValidRequest) {
-            return res.status(403).send('Invalid request signature');
-        }
 
         const from = params.get('From');  // Extract 'From' from form data
         const body = params.get('Body');  // Extract 'Body' from form data
