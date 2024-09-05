@@ -18,7 +18,8 @@ const transporter = nodemailer.createTransport({
 export default async function handler(req, res) {
     if (req.method === 'POST'){
         const twilioSignature = req.headers['x-twilio-signature'];
-        const url = '';
+        const url = 'https://emailsms-rjyfhzeve-al-watkins-projects.vercel.app/api/twilioWebHook
+';
         const params = req.body;
     }
 
