@@ -34,11 +34,15 @@ export default async function handler(req, res) {
         const from = params.get('From');  // Extract 'From' from form data
         const body = params.get('Body');  // Extract 'Body' from form data
 
+        const emailHtmlContent = `
+  <p>You have a new SMS from <a href="tel:${from}">${from}</a>:</p>
+  <p>${body}</p>`;
+
         const mailOptions = {
             from: process.env.EMAIL_USER,  // Use the email set in environment variables
             to: 'hello@atpeacearts.com',
             subject: `New text from ${from}`,
-            text: `You have a new SMS from <a href="tel:${from}">${from}</a>:\n\n${body}`,
+            html: emailHtmlContent,
         };
 
         try {
