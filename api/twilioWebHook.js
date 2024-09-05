@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
 export default async function handler(req, res) {
     if (req.method === 'POST'){
         const twilioSignature = req.headers['x-twilio-signature'];
-        const url = 'https://emailsms-rjyfhzeve-al-watkins-projects.vercel.app/api/twilioWebHook';
+        const url = `https://${req.headers.host}/api/twilioWebHook`;
         const params = req.body;
     }
 
@@ -28,8 +28,7 @@ export default async function handler(req, res) {
         return res.status(403).send('Invalid request signature');
     }
 
-    const from = req.body.From;
-    const body = req.body.Body;
+    const { From:from, Body:body} = req.body; 
 
     const mailOptions = {
         from: process.env.GMAIL_USER,
