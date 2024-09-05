@@ -1,53 +1,61 @@
-const  nodemailer  = require('nodemailer');
+const nodemailer = require('nodemailer');
 const twilio = require('twilio');
 
-//Twilio Credentials
+// Twilio Credentials
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 
-//Nodemailer Transporter Configuation
+// Nodemailer Transporter Configuration
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
+    host: 'smtp.gmail.com',  // Correct SMTP host for Gmail
+    port: 587,  // Port for TLS
+    secure: false,  // Use TLS
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.EMAIL_USER,  // Ensure this matches your environment variable
+        pass: process.env.EMAIL_PASS,  // Ensure this matches your environment variable
     },
 });
 
 export default async function handler(req, res) {
+    // Handle only POST requests
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed. Please use POST.' });
     }
-    
+
+    // Ensure body parsing is handled correctly (Vercel requires manual parsing)
+    let rawBody = '';
+    req.on('data', chunk => {
+        rawBody += chunk.toString();  // Convert buffer to string
+    });
+
+    req.on('end', async () => {
         const twilioSignature = req.headers['x-twilio-signature'];
         const url = `https://${req.headers.host}/api/twilioWebHook`;
-        const params = req.body;
-    
+        const params = new URLSearchParams(rawBody);  // Parse raw body as URL-encoded form data
 
-    const isValidRequest = twilio.validateRequest(twilioAuthToken, twilioSignature, url, params);
-    
-    if (!isValidRequest) {
-        return res.status(403).send('Invalid request signature');
-    }
+        // Validate the request to ensure it is from Twilio
+        const isValidRequest = twilio.validateRequest(twilioAuthToken, twilioSignature, url, Object.fromEntries(params));
 
-    const { From:from, Body:body} = req.body; 
+        if (!isValidRequest) {
+            return res.status(403).send('Invalid request signature');
+        }
 
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: 'hello@atpeacearts.com',
-        subject: `New text from ${from}`,
-        text: `You have a new SMS from ${from}: \n\n ${body}`,
-    };
+        const from = params.get('From');  // Extract 'From' from form data
+        const body = params.get('Body');  // Extract 'Body' from form data
 
-    try {
-        await transporter.sendMail(mailOptions);
-        res.status(200).json({message: 'Email sent succesfully.'});
-    }catch (error) {
-        console.error('Error sending email', error);
-        res.status(500).json({message: 'Failed to send email'});
-    }
+        const mailOptions = {
+            from: process.env.EMAIL_USER,  // Use the email set in environment variables
+            to: 'hello@atpeacearts.com',
+            subject: `New text from ${from}`,
+            text: `You have a new SMS from ${from}: \n\n ${body}`,
+        };
+
+        try {
+            // Send email using Nodemailer
+            await transporter.sendMail(mailOptions);
+            res.status(200).json({ message: 'Email sent successfully.' });
+        } catch (error) {
+            console.error('Error sending email:', error);
+            res.status(500).json({ message: 'Failed to send email' });
+        }
+    });
 }
-
-
-
