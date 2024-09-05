@@ -6,7 +6,7 @@ const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 
 //Nodemailer Transporter Configuation
 const transporter = nodemailer.createTransport({
-    service: 'smtp.gmail.com',
+    host: 'smtp.gmail.com',
     port: 587,
     secure: false,
     auth: {
@@ -16,13 +16,16 @@ const transporter = nodemailer.createTransport({
 });
 
 export default async function handler(req, res) {
-    if (req.method === 'POST'){
+    if (req.method !== 'POST') {
+        return res.status(405).json({ message: 'Method not allowed. Please use POST.' });
+    }
+    
         const twilioSignature = req.headers['x-twilio-signature'];
         const url = `https://${req.headers.host}/api/twilioWebHook`;
         const params = req.body;
-    }
+    
 
-    const isValidRequest = twilio.validRequest(twilioAuthToken, twilioSignature, url, params);
+    const isValidRequest = twilio.validateRequest(twilioAuthToken, twilioSignature, url, params);
     
     if (!isValidRequest) {
         return res.status(403).send('Invalid request signature');
@@ -31,7 +34,7 @@ export default async function handler(req, res) {
     const { From:from, Body:body} = req.body; 
 
     const mailOptions = {
-        from: process.env.GMAIL_USER,
+        from: process.env.EMAIL_USER,
         to: 'hello@atpeacearts.com',
         subject: `New text from ${from}`,
         text: `You have a new SMS from ${from}: \n\n ${body}`,
