@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 
     req.on('end', async () => {
         const twilioSignature = req.headers['x-twilio-signature'];
-        const url = `https://emailsms-lp98l8282-al-watkins-projects.vercel.app/api/twilioWebHook`;
+        const url = `https://emailsms-tawny.vercel.app/api/twilioWebHook`;
         const params = new URLSearchParams(rawBody);  // Parse raw body as URL-encoded form data
 
         // Validate the request to ensure it is from Twilio
