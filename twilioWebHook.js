@@ -6,7 +6,9 @@ const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 
 //Nodemailer Transporter Configuation
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
     auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS,
